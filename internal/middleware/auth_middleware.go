@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
+	"auth-service/internal/utils"
 	"net/http"
 	"strings"
-	"auth-service/internal/utils"
+	"github.com/gin-gonic/gin"
 )
 
 func JWTAuth() gin.HandlerFunc {

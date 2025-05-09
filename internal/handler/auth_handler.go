@@ -41,7 +41,7 @@ func Login(repo repository.UserRepository) gin.HandlerFunc {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 			return
 		}
-		token, _ := utils.GenerateToken(string(rune(dbUser.ID)))
+		token, _ := utils.GenerateToken(int(dbUser.ID))
 		c.JSON(http.StatusOK, gin.H{"token": token})
 	}
 }

@@ -17,9 +17,7 @@ func main() {
 	config.LoadEnv()
 
 	dsn := os.Getenv("DATABASE_DSN")
-	db, err := gorm.Open(postgres.New(postgres.Config{
-		DriverName: "cloudsqlpostgres",
-		DSN:        dsn}))
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		
 	if err != nil {
 		log.Fatalf("failed to connect database: %v", err)
