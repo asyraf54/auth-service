@@ -8,6 +8,7 @@ import (
 type UserRepository interface {
 	CreateUser(user *model.User) error
 	FindByEmail(email string) (*model.User, error)
+	FindByID(userId int) (*model.User, error)
 }
 
 type userRepo struct {
@@ -26,4 +27,13 @@ func (r *userRepo) FindByEmail(email string) (*model.User, error) {
 	var user model.User
 	err := r.db.Where("email = ?", email).First(&user).Error
 	return &user, err
+}
+
+func (r *userRepo) FindByID(userId int) (*model.User, error) {
+	var user model.User
+	err := r.db.First(&user, userId).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

@@ -35,18 +35,25 @@ func main() {
 
 	r := gin.Default()
 	authRepo := repository.NewUserRepository(db)
+	authHandler := handler.NewAuthHandler(authRepo);
 
 	auth := r.Group("/")
 	{
-		auth.POST("/register", handler.Register(authRepo))
-		auth.POST("/login", handler.Login(authRepo))
+		auth.POST("/register", authHandler.Register)
+		auth.POST("/login", authHandler.Login)
 	}
 
 	secure := r.Group("/")
-	secure.Use(middleware.JWTAuth())
+	secure.Use(middleware.JWTAuth("access"))
 	{
-		secure.GET("/me", handler.Me)
-		secure.GET("/verify-token", handler.VerifyToken)
+		secure.GET("/me", authHandler.Me)
+		secure.GET("/verify-token", authHandler.VerifyToken)
+	}
+
+	secureRefresh := r.Group("/")
+	secureRefresh.Use(middleware.JWTAuth("refresh"))
+	{
+		secureRefresh.POST("/refresh-token", authHandler.RefreshToken)
 	}
 
 	log.Fatal(r.Run(":" + os.Getenv("PORT")))

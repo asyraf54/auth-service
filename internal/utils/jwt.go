@@ -34,13 +34,32 @@ func GenerateTokens(userID int) (accessToken string, refreshToken string, err er
 	return accessToken, refreshToken, nil
 }
 
-func ValidateToken(tokenStr string) (map[string]interface{}, error) {
+func ValidateToken(tokenStr string, expectedType string) (map[string]interface{}, error) {
+	// Parse the token
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 
+	// Token parsing or signature validation failed
 	if err != nil || !token.Valid {
 		return nil, err
 	}
-	return token.Claims.(jwt.MapClaims), nil
+
+	// Extract and validate claims
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, jwt.ErrInvalidKeyType
+	}
+
+	// Check for correct token type
+	if tokenType, ok := claims["type"].(string); !ok || tokenType != expectedType {
+		return nil, jwt.ErrInvalidType
+	}
+
+	// Check for expiration
+	if exp, ok := claims["exp"].(float64); !ok || int64(exp) < time.Now().Unix() {
+		return nil, jwt.ErrTokenExpired
+	}
+
+	return claims, nil
 }
